@@ -1,0 +1,11 @@
+# Configurație locală și credențiale
+.env
+.env.*
+!.env.example
+
+# Fișiere locale ale sistemului de operare
+.DS_Store
+Thumbs.db
+
+# Configurație locală IDE
+.idea/
