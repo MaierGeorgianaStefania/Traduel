@@ -9,3 +9,7 @@ Thumbs.db
 
 # Configurație locală IDE
 .idea/
+
+# Fișiere Java compilate
+*.class
+out/
