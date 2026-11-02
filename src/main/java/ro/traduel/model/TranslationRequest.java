@@ -1,7 +1,10 @@
 package ro.traduel.model;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
+@Getter
 public final class TranslationRequest {
     private final String text;
     private final Language sourceLanguage;
@@ -20,17 +23,5 @@ public final class TranslationRequest {
         }
 
         this.text = text;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public Language getSourceLanguage() {
-        return sourceLanguage;
-    }
-
-    public Language getTargetLanguage() {
-        return targetLanguage;
     }
 }

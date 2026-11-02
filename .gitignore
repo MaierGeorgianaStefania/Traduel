@@ -13,3 +13,4 @@ Thumbs.db
 # Fișiere Java compilate
 *.class
 out/
+target/

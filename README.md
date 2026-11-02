@@ -49,4 +49,8 @@ Importul documentelor, recunoașterea textului din imagini, traducerea audio și
 
 ## Tehnologii
 
-Tehnologiile pentru frontend, backend și baza de date vor fi alese într-o etapă următoare.
+## Compilare
+
+```shell
+mvn compile
+```

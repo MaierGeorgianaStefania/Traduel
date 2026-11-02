@@ -1,7 +1,10 @@
 package ro.traduel.model;
 
+import lombok.Getter;
+
 import java.util.Objects;
 
+@Getter
 public final class TranslationResult {
     private final TranslationRequest request;
     private final TranslationProvider provider;
@@ -17,17 +20,5 @@ public final class TranslationResult {
         }
 
         this.translatedText = translatedText;
-    }
-
-    public TranslationRequest getRequest() {
-        return request;
-    }
-
-    public TranslationProvider getProvider() {
-        return provider;
-    }
-
-    public String getTranslatedText() {
-        return translatedText;
     }
 }
