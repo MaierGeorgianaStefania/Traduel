@@ -4,5 +4,6 @@ public enum TranslationProvider {
     GOOGLE,
     DEEPL,
     MICROSOFT,
-    AMAZON
+    AMAZON,
+    MYMEMORY
 }

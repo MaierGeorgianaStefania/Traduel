@@ -1,6 +1,8 @@
 package ro.traduel;
 
 import ro.traduel.adapter.DeepLAdapter;
+import ro.traduel.adapter.MicrosoftAdapter;
+import ro.traduel.adapter.MyMemoryAdapter;
 import ro.traduel.adapter.TranslationAdapter;
 import ro.traduel.model.Language;
 import ro.traduel.model.TranslationRequest;
@@ -12,19 +14,15 @@ import ro.traduel.service.PostEditingService;
 import ro.traduel.service.TranslationSessionService;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class TraduelConsole {
     public static void main(String[] args) {
-        String apiKey = System.getenv("DEEPL_API_KEY");
-        if (apiKey == null || apiKey.isBlank()) {
-            System.out.println("Configurează variabila de mediu DEEPL_API_KEY.");
-            return;
-        }
+        List<TranslationAdapter> adapters = createAdapters();
 
         TranslationHistoryRepository history = new TranslationHistoryRepository();
-        TranslationAdapter adapter = new DeepLAdapter(apiKey.strip());
         try (Scanner input = new Scanner(System.in)) {
             while (true) {
                 System.out.println("\n1. Traducere nouă\n2. Istoric\n0. Ieșire");
@@ -35,11 +33,7 @@ public class TraduelConsole {
                 String choice = input.nextLine().strip();
                 switch (choice) {
                     case "1" -> {
-                        try {
-                            translate(input, adapter, history);
-                        } catch (IOException e) {
-                            System.out.println(e.getMessage() + " Verifică cheia și conexiunea.");
-                        }
+                        translate(input, adapters, history);
                     }
                     case "2" -> showHistory(history);
                     case "0" -> {
@@ -54,8 +48,8 @@ public class TraduelConsole {
         }
     }
 
-    private static void translate(Scanner input, TranslationAdapter adapter,
-                                  TranslationHistoryRepository history) throws IOException, InterruptedException {
+    private static void translate(Scanner input, List<TranslationAdapter> adapters,
+                                  TranslationHistoryRepository history) throws InterruptedException {
         Language sourceLanguage = readLanguage(input, "Alege limba sursă");
         if (sourceLanguage == null) {
             return;
@@ -83,17 +77,35 @@ public class TraduelConsole {
         }
 
         TranslationRequest request = new TranslationRequest(text, sourceLanguage, targetLanguage);
-        TranslationResult result = adapter.translate(request);
+        List<TranslationResult> results = new ArrayList<>();
+        for (TranslationAdapter adapter : adapters) {
+            try {
+                results.add(adapter.translate(request));
+            } catch (IOException e) {
+                System.out.println(adapter.getProvider() + ": " + e.getMessage());
+            }
+        }
+        if (results.isEmpty()) {
+            System.out.println("Niciun motor nu a returnat o traducere.");
+            return;
+        }
 
         TranslationSessionService sessions = new TranslationSessionService(history);
         PostEditingService editing = new PostEditingService(history);
         TranslationSession session = sessions.createSession(request);
-        sessions.addResult(session.getId(), result);
+        for (int index = 0; index < results.size(); index++) {
+            TranslationResult result = results.get(index);
+            sessions.addResult(session.getId(), result);
+            System.out.println((index + 1) + ". " + result.getProvider() + ": " + result.getTranslatedText());
+        }
 
-        System.out.println("Traducere DeepL: " + result.getTranslatedText());
+        TranslationResult selected = readResult(input, results);
+        if (selected == null) {
+            return;
+        }
         System.out.print("Motivul alegerii (opțional, Enter pentru a omite): ");
         String reason = input.hasNextLine() ? input.nextLine() : "";
-        sessions.selectResult(session.getId(), result.getProvider(), reason);
+        sessions.selectResult(session.getId(), selected.getProvider(), reason);
 
         System.out.print("Scrie versiunea ta sau apasă Enter: ");
         if (input.hasNextLine()) {
@@ -103,6 +115,34 @@ public class TraduelConsole {
                 System.out.println("Versiunea ta: " + revision.getEditedText());
             }
         }
+    }
+
+    private static List<TranslationAdapter> createAdapters() {
+        List<TranslationAdapter> adapters = new ArrayList<>();
+        String deepLKey = System.getenv("DEEPL_API_KEY");
+        if (deepLKey != null && !deepLKey.isBlank()) {
+            adapters.add(new DeepLAdapter(deepLKey.strip()));
+        }
+        String microsoftKey = System.getenv("MICROSOFT_API_KEY");
+        if (microsoftKey != null && !microsoftKey.isBlank()) {
+            adapters.add(new MicrosoftAdapter(microsoftKey, System.getenv("MICROSOFT_REGION")));
+        }
+        adapters.add(new MyMemoryAdapter());
+        return adapters;
+    }
+
+    private static TranslationResult readResult(Scanner input, List<TranslationResult> results) {
+        System.out.print("Alege traducerea preferată (1-" + results.size() + "): ");
+        while (input.hasNextLine()) {
+            String choice = input.nextLine().strip();
+            for (int index = 0; index < results.size(); index++) {
+                if (choice.equals(String.valueOf(index + 1))) {
+                    return results.get(index);
+                }
+            }
+            System.out.print("Opțiune invalidă. Alege o traducere: ");
+        }
+        return null;
     }
 
     private static void showHistory(TranslationHistoryRepository history) {
