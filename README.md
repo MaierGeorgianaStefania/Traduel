@@ -22,7 +22,7 @@ Platforma urmărește să combine accesul rapid la mai multe traduceri cu posibi
 
 ## Funcționalități planificate
 
-- Integrarea Google Cloud Translation, DeepL API, Microsoft Azure Translator și Amazon Translate.
+- Integrarea MyMemory, OpenAI, DeepL, Claude și Google Cloud Translation.
 - Solicitarea traducerilor în paralel și tratarea separată a erorilor fiecărui serviciu.
 - Compararea rezultatelor și selectarea traducerii preferate.
 - Mod de evaluare anonimă, cu rezultate prezentate în ordine aleatorie și furnizori dezvăluiți după alegere.

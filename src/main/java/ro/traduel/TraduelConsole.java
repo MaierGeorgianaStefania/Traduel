@@ -1,8 +1,10 @@
 package ro.traduel;
 
+import ro.traduel.adapter.ClaudeAdapter;
 import ro.traduel.adapter.DeepLAdapter;
-import ro.traduel.adapter.MicrosoftAdapter;
+import ro.traduel.adapter.GoogleAdapter;
 import ro.traduel.adapter.MyMemoryAdapter;
+import ro.traduel.adapter.OpenAIAdapter;
 import ro.traduel.adapter.TranslationAdapter;
 import ro.traduel.model.Language;
 import ro.traduel.model.TranslationRequest;
@@ -123,11 +125,19 @@ public class TraduelConsole {
         if (deepLKey != null && !deepLKey.isBlank()) {
             adapters.add(new DeepLAdapter(deepLKey.strip()));
         }
-        String microsoftKey = System.getenv("MICROSOFT_API_KEY");
-        if (microsoftKey != null && !microsoftKey.isBlank()) {
-            adapters.add(new MicrosoftAdapter(microsoftKey, System.getenv("MICROSOFT_REGION")));
-        }
         adapters.add(new MyMemoryAdapter());
+        String googleKey = System.getenv("GOOGLE_API_KEY");
+        if (googleKey != null && !googleKey.isBlank()) {
+            adapters.add(new GoogleAdapter(googleKey));
+        }
+        String openAIKey = System.getenv("OPENAI_API_KEY");
+        if (openAIKey != null && !openAIKey.isBlank()) {
+            adapters.add(new OpenAIAdapter(openAIKey));
+        }
+        String anthropicKey = System.getenv("ANTHROPIC_API_KEY");
+        if (anthropicKey != null && !anthropicKey.isBlank()) {
+            adapters.add(new ClaudeAdapter(anthropicKey));
+        }
         return adapters;
     }
 
