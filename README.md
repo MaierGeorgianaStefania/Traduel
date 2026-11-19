@@ -54,3 +54,15 @@ Importul documentelor, recunoașterea textului din imagini, traducerea audio și
 ```shell
 mvn compile
 ```
+
+## Configurarea serviciilor de traducere
+
+Consola folosește variabile de mediu pentru autentificare.
+
+| Furnizor | Variabilă | Model sau serviciu |
+| --- | --- | --- |
+| DeepL | `DEEPL_API_KEY` | DeepL API |
+| Google Translate | `GOOGLE_API_KEY` | Cloud Translation Basic |
+| OpenAI | `OPENAI_API_KEY` | `gpt-6-luna`, cu `reasoning_effort=none` |
+| Claude | `ANTHROPIC_API_KEY` | `claude-haiku-4-5-20251001` |
+| MyMemory | — | API public, acces anonim |
